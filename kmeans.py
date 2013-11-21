@@ -3,28 +3,32 @@ import random as rand
 import math
 
 #
-# This method will take in an array and return the mean value.
+# This method will take in an array and return the mean point of any n dimensional matrix.
 #
 def mean(arr):
-        sum = 0.
-        length = len(arr)
+	sums = numpy.zeros( (1, len(arr[0])) );
+	length = len(arr)
+	
+	for row in range(0, length):
+		for col in range(0, len(sums)):
+			sums[col] += arr[row, col]
 
-        for i in arr:
-                sum += i[0]
+	for i in range(0, len(sums)):
+		sums[0, i] /= length
 
-        return sum/length
+	return sums
 
 #
 # This method will take in an array and return the index of the minimum value.
 #
 def min_index(arr):
-        index = 0
+	index = 0
 
-        for i in range(1, len(arr)):
-                if arr[i, 0] < arr[index, 0]:
-                        index = i
+	for i in range(1, len(arr)):
+		if arr[i, 0] < arr[index, 0]:
+			index = i
 
-        return index
+	return index
 
 #
 # This method takes in a set of data and the number of clusters that 
@@ -33,51 +37,50 @@ def min_index(arr):
 #
 def kmeans(data, m):
 	
-        cur_means = numpy.zeros( (m, 2) )
+	cur_means = numpy.zeros( (m, 2) )
 
-        length = len(data)
-        labels = numpy.zeros( (length, 1) )
+	length = len(data)
+	labels = numpy.zeros( (length, 1) )
 
-        #randomize means
-        for i in range(0,m):
+	#randomize means
+	for i in range(0,m):
+		index = math.floor(length * rand.random());
 
-                index = math.floor(length * rand.random());
-
-                cur_means[i, 0] = data[index, 0];
-                cur_means[i, 1] = data[index, 1];
+		cur_means[i, 0] = data[index, 0];
+		cur_means[i, 1] = data[index, 1];
         
-        converged = False
+	converged = False
 
-        while not converged:
-                #This will go through each point and find the closest mean and label it.
-                for i in range(0,length):
-                        # Go through each cluster
-                        distance = numpy.zeros( (m, 1) );
-                        for j in range(0, m):
-                                distance[j, 0] = math.sqrt((data[i, 0] - cur_means[i, 0])**2 - (data[i, 1] - cur_means[j, 1]**2));
-                        index = min_index(distance)
-                        labels[i] = index
+	while not converged:
+		#This will go through each point and find the closest mean and label it.
+		for i in range(0,length):
+			# Go through each cluster
+			distance = numpy.zeros( (m, 1) );
+			for j in range(0, m):
+				distance[j, 0] = math.sqrt((data[i, 0] - cur_means[j, 0])**2 + (data[i, 1] - cur_means[j, 1])**2);
+			index = min_index(distance)
+			labels[i] = index
 
-                prev_means = cur_means
+			prev_means = cur_means
 
-                #This will re-evaluate each mean
-                for j in range(0, m):
-                        label_array = numpy.zeros(0, 1)
-                        for i in range(0, length):
-                                if labels[i] == j:
-                                        label_array = numpy.vstack( (label_array, data[i, :]) )
-                        tmp = mean(label_array)
-                        cur_means[j, 0] = tmp[0, 0]
-                        cur_means[j, 1] = tmp[0, 1]
+			#This will re-evaluate each mean
+		for j in range(0, m):
+			label_array = numpy.zeros( (0, 2) )
+			for i in range(0, length):
+				if labels[i] == j:
+					label_array = numpy.vstack( (label_array, data[i, :]) )
+			tmp = mean(label_array)
+			cur_means[j, 0] = tmp[0, 0]
+			cur_means[j, 1] = tmp[0, 1]
 
-                result = cur_means == prev_means
-                converged = result[0] and result[1]
+		result = cur_means == prev_means
+		converged = result.all();
         
-        final_data = numpy.zeros( (length, 3) )
+	final_data = numpy.zeros( (length, 3) )
 
-        for i in range(0, length):
-                final_data[i, 0] = data[i, 0]
-                final_data[i, 1] = data[i, 1]
-                final_data[i, 2] = labels[i]
+	for i in range(0, length):
+		final_data[i, 0] = data[i, 0]
+		final_data[i, 1] = data[i, 1]
+		final_data[i, 2] = labels[i]
 
-        return (means, final_data)
+	return (cur_means, final_data)
