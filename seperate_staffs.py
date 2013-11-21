@@ -36,8 +36,8 @@ def seperate_staffs(image):
         row_number = row_number + 1
 
     seperated_images = [image[x[0]:x[1], :] for x in images]
-
-    return seperated_images
+    filtered_images = filter(lambda x: x.mean()<.85, seperated_images)
+    return filtered_images
 
 if __name__ == "__main__":
     image = misc.imread(sys.argv[1])
