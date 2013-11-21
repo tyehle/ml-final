@@ -13,7 +13,7 @@ def mean(arr):
 		for col in range(0, len(sums)):
 			sums[col] += arr[row, col]
 
-	for i in range(0, len(sums)):
+	for i in range(0, len(sums[0])):
 		sums[0, i] /= length
 
 	return sums
@@ -61,9 +61,9 @@ def kmeans(data, m):
 			index = min_index(distance)
 			labels[i] = index
 
-			prev_means = cur_means
+		prev_means = cur_means
 
-			#This will re-evaluate each mean
+		#This will re-evaluate each mean
 		for j in range(0, m):
 			label_array = numpy.zeros( (0, 2) )
 			for i in range(0, length):
