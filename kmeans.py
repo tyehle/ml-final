@@ -21,8 +21,7 @@ def min_index(arr):
         index = 0
 
         for i in range(1, len(arr)):
-                result = arr[i, 0] < arr[index, 0]
-                if result[0] and result[1]:
+                if arr[i, 0] < arr[index, 0]:
                         index = i
 
         return index
