@@ -10,8 +10,8 @@ def mean(arr):
 	length = len(arr)
 	
 	for row in range(0, length):
-		for col in range(0, len(sums)):
-			sums[col] += arr[row, col]
+		for col in range(0, len(sums[0])):
+			sums[0, col] += arr[row, col]
 
 	for i in range(0, len(sums[0])):
 		sums[0, i] /= length
@@ -37,17 +37,18 @@ def min_index(arr):
 #
 def kmeans(data, m):
 	
-	cur_means = numpy.zeros( (m, 2) )
-
+	# How many data points there are
 	length = len(data)
+	# The dimension of the data
+	dim = len(data[0]);
 	labels = numpy.zeros( (length, 1) )
+
+	cur_means = numpy.zeros( (m, dim) );
 
 	#randomize means
 	for i in range(0,m):
 		index = math.floor(length * rand.random());
-
-		cur_means[i, 0] = data[index, 0];
-		cur_means[i, 1] = data[index, 1];
+		cur_means[i, :] = data[index, :];
         
 	converged = False
 
@@ -57,7 +58,9 @@ def kmeans(data, m):
 			# Go through each cluster
 			distance = numpy.zeros( (m, 1) );
 			for j in range(0, m):
-				distance[j, 0] = math.sqrt((data[i, 0] - cur_means[j, 0])**2 + (data[i, 1] - cur_means[j, 1])**2);
+				for k in range(0, dim):
+					distance[j, 0] += (data[i, k] - cur_means[j, k])**2
+				distance[j, 0] = math.sqrt(distance[j, 0]);
 			index = min_index(distance)
 			labels[i] = index
 
@@ -65,22 +68,22 @@ def kmeans(data, m):
 
 		#This will re-evaluate each mean
 		for j in range(0, m):
-			label_array = numpy.zeros( (0, 2) )
+			label_array = numpy.zeros( (0, dim) )
 			for i in range(0, length):
 				if labels[i] == j:
 					label_array = numpy.vstack( (label_array, data[i, :]) )
 			tmp = mean(label_array)
-			cur_means[j, 0] = tmp[0, 0]
-			cur_means[j, 1] = tmp[0, 1]
-
+			cur_means[j, :] = tmp[0, :]
+		
+		#This will check for convergence by seeing if the difference
+		#between the previous means and the current means have changed.
 		result = cur_means == prev_means
 		converged = result.all();
         
-	final_data = numpy.zeros( (length, 3) )
+	final_data = numpy.zeros( (length, dim + 1) )
 
-	for i in range(0, length):
-		final_data[i, 0] = data[i, 0]
-		final_data[i, 1] = data[i, 1]
-		final_data[i, 2] = labels[i]
-
+	final_data[:, 0:dim] = data[:, :]
+	final_data[:, dim] = labels[:, 0]
+ 
 	return (cur_means, final_data)
+
