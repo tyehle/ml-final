@@ -14,10 +14,10 @@ def seperate_staffs(image):
     #count up the whitespace in each row
     whitespace_counts = []
     for i in image:
-        sum = 0
+        whitespace_sum = 0
         for j in i:
-            sum = sum + j
-        whitespace_counts.append(sum[0])
+            whitespace_sum = whitespace_sum + j
+        whitespace_counts.append(whitespace_sum[0])
             
     #split the image based on whitespace
     in_image = False
@@ -36,7 +36,8 @@ def seperate_staffs(image):
         row_number = row_number + 1
 
     seperated_images = [image[x[0]:x[1], :] for x in images]
-    filtered_images = filter(lambda x: x.mean()<.85, seperated_images)
+    staff_threshold = sum([x.mean() for x in seperated_images])/len(seperated_images)
+    filtered_images = filter(lambda x: x.mean()<staff_threshold, seperated_images)
     return filtered_images
 
 if __name__ == "__main__":
