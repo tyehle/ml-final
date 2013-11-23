@@ -64,7 +64,7 @@ def kmeans(data, m):
 			index = min_index(distance)
 			labels[i] = index
 
-		prev_means = cur_means
+		prev_means = numpy.copy(cur_means)
 
 		#This will re-evaluate each mean
 		for j in range(0, m):
@@ -72,8 +72,7 @@ def kmeans(data, m):
 			for i in range(0, length):
 				if labels[i] == j:
 					label_array = numpy.vstack( (label_array, data[i, :]) )
-			tmp = mean(label_array)
-			cur_means[j, :] = tmp[0, :]
+			cur_means[j, :] = mean(label_array)[0, :]
 		
 		#This will check for convergence by seeing if the difference
 		#between the previous means and the current means have changed.
