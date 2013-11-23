@@ -36,19 +36,21 @@ def min_index(arr):
 # a cluster label.
 #
 def kmeans(data, m):
-	
+	# If the data structure that is recieved is numpy.matrix,
+	# this will convert it to numpy.array.
 	if(type(data) == numpy.matrix):
 		data = numpy.asarray(data)
 
 	# How many data points there are
 	length = len(data)
-	# The dimension of the data
+	# The dimension of the data point
 	dim = len(data[0]);
+	# The label that is assigned to.
 	labels = numpy.zeros( (length, 1) )
 
 	cur_means = numpy.zeros( (m, dim) );
 
-	#randomize means
+	#randomize means by choosing 3 points from the data at random.
 	for i in range(0,m):
 		index = math.floor(length * rand.random());
 		cur_means[i, :] = data[index, :];
@@ -56,32 +58,21 @@ def kmeans(data, m):
 	converged = False
 
 	while not converged:
-		#This will go through each point and find the closest mean and label it.
-		for i in range(0,length):
-			# Go through each cluster
-			distance = numpy.zeros( (m, 1) );
-			for j in range(0, m):
-				for k in range(0, dim):
-					distance[j, 0] += (data[i, k] - cur_means[j, k])**2
-				distance[j, 0] = math.sqrt(distance[j, 0]);
-			index = min_index(distance)
-			labels[i] = index
+		# Relabel each data point by its closest mean.
+		labels = relabel_data(data, m, cur_means)
 
 		prev_means = numpy.copy(cur_means)
 
-		#This will re-evaluate each mean
-		for j in range(0, m):
-			label_array = numpy.zeros( (0, dim) )
-			for i in range(0, length):
-				if labels[i] == j:
-					label_array = numpy.vstack( (label_array, data[i, :]) )
-			cur_means[j, :] = mean(label_array)[0, :]
+		# Re-evaluate each mean by taking the mean of the cluster.
+		cur_means = reevaluate_means(data, m, labels)
 		
-		#This will check for convergence by seeing if the difference
-		#between the previous means and the current means have changed.
+		# This will check for convergence by seeing if the difference
+		# between the previous means and the current means have changed.
 		result = cur_means == prev_means
 		converged = result.all();
-        
+
+	# Combine the labels and the data together and return 
+	# it with each cluster mean.
 	final_data = numpy.zeros( (length, dim + 1) )
 
 	final_data[:, 0:dim] = data[:, :]
@@ -89,3 +80,34 @@ def kmeans(data, m):
  
 	return (cur_means, final_data)
 
+#
+# Go through each data point and relabel it based on its
+# closest mean.
+#
+def relabel_data(data, m, cur_means):
+	labels = numpy.zeros( (len(data), 1) )
+	for i in range(0,len(data)):
+		# Go through each cluster
+		distance = numpy.zeros( (m, 1) );
+		for j in range(0, m):
+			for k in range(0, len(data[0])):
+				distance[j, 0] += (data[i, k] - cur_means[j, k])**2
+			distance[j, 0] = math.sqrt(distance[j, 0]);
+		index = min_index(distance)
+		labels[i] = index
+
+	return labels
+
+#
+# This will recompute each mean based on the mean of the new cluster 
+# of data.
+#
+def reevaluate_means(data, m, labels):
+	means = numpy.zeros( (m, len(data[0])) )
+	for j in range(0, m):
+		label_array = numpy.zeros( (0, len(data[0])) )
+		for i in range(0, len(data)):
+			if labels[i] == j:
+				label_array = numpy.vstack( (label_array, data[i, :]) )
+		means[j, :] = mean(label_array)[0, :]
+	return means
