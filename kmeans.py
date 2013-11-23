@@ -37,6 +37,9 @@ def min_index(arr):
 #
 def kmeans(data, m):
 	
+	if(type(data) == numpy.matrix):
+		data = numpy.asarray(data)
+
 	# How many data points there are
 	length = len(data)
 	# The dimension of the data
