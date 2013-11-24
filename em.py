@@ -14,6 +14,7 @@ import random
 
 def em(data, m, iteration_cap, tolerance):
     """ Runs the em algorithm """
+    data = numpy.asarray(data) # convert data to an array
     n = data.shape[1]
     a = data.shape[0]
 
@@ -21,7 +22,7 @@ def em(data, m, iteration_cap, tolerance):
     phi = numpy.ones(m) / m
 
     # pick inital mu's randomly from the data
-    mu = numpy.array([data[:, int(random.random() * n)] for _ in range(0, m)])
+    mu = numpy.array([data[:, int(random.random() * n)] for _ in range(0, m)]).T
 
     # set sigma as the identity matrix for starters
     sig = numpy.dstack([numpy.eye(a) for _ in range(0, m)])
@@ -30,14 +31,16 @@ def em(data, m, iteration_cap, tolerance):
         w = _e_step(data, m, phi, mu, sig)
         (new_phi, new_mu, new_sig) = _m_step(data, m, w)
 
+        print(i)
+
         diff = (new_mu - mu)*(new_mu - mu)
 
         phi = new_phi
         mu = new_mu
         sig = new_sig
 
-        if diff[numpy.argmax(diff)] < tolerance:
-            print("Broke: " + i)
+        if diff[numpy.unravel_index(numpy.argmax(diff), diff.shape)] < tolerance:
+            print("Broke: %i" % i)
             break
 
 
@@ -60,7 +63,7 @@ def _e_step(data, m, phi, mu, sig):
         # w_{ij} = \frac{ \mathcal{N}(\mu_j, \Sigma_j) \phi_j }
         #          { \sum_{k=1}^m \mathcal{N}(\mu_k, \Sigma_k) \phi_k }
 
-        nums = [_gauss(data[:, k], mu[:, k], sig[:, :, k])*phi[k] \
+        nums = [_gauss(data[:, i], mu[:, k], sig[:, :, k])*phi[k] \
                 for k in range(0, m)]
         denom = sum(nums)
 
@@ -84,8 +87,8 @@ def _m_step(data, m, w):
     a = data.shape[0]
 
     phi = numpy.zeros(m)
-    mu = numpy.zeros(a, m)
-    sig = numpy.zeros(a, a, m)
+    mu = numpy.zeros((a, m))
+    sig = numpy.zeros((a, a, m))
 
     for j in range(0, m):
         # \phi_j = \frac{1}{n} \sum_{i=1}^n w_{ij}
@@ -102,7 +105,7 @@ def _m_step(data, m, w):
         mu_j = 1.0/sum_wij * mu_j
 
         # find sig_j
-        sig_j = numpy.zeros(a, a)
+        sig_j = numpy.zeros((a, a))
         for i in range(0, n):
             diff = numpy.array([(data[:, i] - mu_j)])
             sig_j += w[j, i] * diff.T*diff
@@ -122,4 +125,4 @@ def _gauss(x, mu, sig):
     """
     a = x.shape[0]
     return 1.0/math.sqrt((2*math.pi)**a * numpy.linalg.det(sig)) * \
-        math.exp(-0.5 * (x-mu).T*sig**-1*(x-mu))
+        math.exp(-0.5 * (numpy.asmatrix(x-mu) * numpy.linalg.inv(sig) * numpy.asmatrix(x-mu).T)[0,0])
