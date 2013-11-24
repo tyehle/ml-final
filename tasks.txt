@@ -1,5 +1,6 @@
-Eric + Chase : image processing - extract notes
-Tobin + Kyle : code learning algorithms - GDA em + kmeans
+Eric + Chase : image processing - extract notes with HOG
+Tobin : test em algorithm
+Kyle : figure out how presentations work
 
 clustering to find pitch
 classification to find note/rest type
