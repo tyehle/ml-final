@@ -1,6 +1,6 @@
 Eric + Chase : image processing - extract notes with HOG
-Tobin : test em algorithm
-Kyle : figure out how presentations work
+Tobin : Cluster validity checking
+Kyle : Output data structure
 
 clustering to find pitch
 classification to find note/rest type
