@@ -33,18 +33,32 @@ def em(data, m, iteration_cap, tolerance):
 
         print(i)
 
-        diff = (new_mu - mu)*(new_mu - mu)
+        diff = _get_max([(new_mu - mu), (new_sig - sig), (new_phi - phi)])
 
         phi = new_phi
         mu = new_mu
         sig = new_sig
 
-        if diff[numpy.unravel_index(numpy.argmax(diff), diff.shape)] < tolerance:
-            print("Broke: %i" % i)
+        if diff < tolerance:
+            print("Converged: %i" % i)
             break
 
 
     return (w, phi, mu, sig)
+
+
+def _get_max(arrays):
+    """ Gets the maximum absolute value out of the given array of arrays or
+        matrices.
+    """
+    maximum = 0
+    for i in range(0, len(arrays)):
+        vals = arrays[i].flatten()
+        for j in range(0, len(vals)):
+            if abs(vals[j]) > maximum:
+                maximum = abs(vals[j])
+
+    return maximum
 
 
 def _e_step(data, m, phi, mu, sig):
@@ -107,7 +121,7 @@ def _m_step(data, m, w):
         # find sig_j
         sig_j = numpy.zeros((a, a))
         for i in range(0, n):
-            diff = numpy.array([(data[:, i] - mu_j)])
+            diff = numpy.matrix([(data[:, i] - mu_j)])
             sig_j += w[j, i] * diff.T*diff
         sig_j = 1.0/sum_wij * sig_j
 
@@ -125,4 +139,5 @@ def _gauss(x, mu, sig):
     """
     a = x.shape[0]
     return 1.0/math.sqrt((2*math.pi)**a * numpy.linalg.det(sig)) * \
-        math.exp(-0.5 * (numpy.asmatrix(x-mu) * numpy.linalg.inv(sig) * numpy.asmatrix(x-mu).T)[0,0])
+        math.exp(-0.5 * (numpy.asmatrix(x-mu) * numpy.linalg.inv(sig) * \
+                         numpy.asmatrix(x-mu).T)[0,0])
