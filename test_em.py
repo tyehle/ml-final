@@ -12,7 +12,6 @@ import math
 import matplotlib.pyplot as mpl
 import itertools
 
-import em
 import clustering
 
 
@@ -67,7 +66,7 @@ def accuracy(perm, in_labels, out_labels):
             num_correct += 1.0
     return num_correct/len(in_labels)
 
-def run_test():
+def run_em_test():
     """ Runs the test on the em algorithm. """
     n = 1000
     m = 3
@@ -94,7 +93,7 @@ def run_test():
 
     classes = m
     input_data = numpy.concatenate(data, axis=1)
-    (w, phi, mu, sig) = em.em(input_data, classes, 40, 0.01)
+    (w, phi, mu, sig) = clustering.em(input_data, classes, 40, 0.01)
 
     out_labels = [ int(numpy.argmax(w[:, i])) \
                    for i in range(input_data.shape[1]) ]
@@ -114,8 +113,6 @@ def run_test():
                 best_acc = acc
                 best_perm = perms[i]
 
-        print(best_acc)
-
         correct = [ input_data[:, i] for i in range(len(labels)) \
                     if labels[i] == best_perm[out_labels[i]] ]
         correct = numpy.concatenate(correct, axis=1)
@@ -123,19 +120,19 @@ def run_test():
 
         incorrect = [ input_data[:, i] for i in range(len(labels)) \
                       if labels[i] != best_perm[out_labels[i]] ]
-        print("%i / %i" % (len(incorrect), len(labels)))
         if incorrect:
             incorrect = numpy.concatenate(incorrect, axis=1)
             outplot.plot(incorrect[0, :], incorrect[1, :], 'ro')
 
-    else: # plot the points with their original classes
+        print("Accuracy: %f.2 (%i / %i)" % (best_acc, len(incorrect), len(labels)))
+
+    else: # plot the points with their new classes
         for j in range(0, m):
             outplot.plot(data[j][0, :], data[j][1, :], colors[j])
 
 
     # compute the validity of this set of clusters
     validity = clustering.dunn_index(input_data, out_labels, mu)
-    print(type(validity))
     print("Validity: %.4f" % validity)
 
     # plot the one sigma contours
@@ -149,5 +146,6 @@ def run_test():
 
 
 if __name__ == '__main__':
-    run_test()
+    print("Running em test")
+    run_em_test()
 
