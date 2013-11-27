@@ -1,0 +1,6 @@
+Eric + Chase : image processing - extract notes with HOG
+Tobin : Note clustering
+Kyle : Output data structure read and write to file + test
+
+clustering to find pitch
+classification to find note/rest type
