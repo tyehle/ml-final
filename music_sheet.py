@@ -10,37 +10,48 @@ classifications.
 
 from collections import deque
 from collections import namedtuple
+from flufl.enum import Enum
 
-def enum(**enums):
-    return type('Enum', (), enums)
+class NoteType(Enum):
+    """ NoteType is an enum that gives the type of the note
+        as either full, half, quater, or some lower length. """
+    FULL = 1
+    HALF = 2
+    QUATER = 3
+    EIGHT = 4
+    SIXTEEN = 5
+    THIRTY_SECOND = 6
+    SIXTY_FOUR = 7
 
-# Length_Type is an enum that gives the length of the note
-# as either full, half, quater, or some lower length.
-NoteType = enum(FULL = 1, HALF = 2, QUATER = 3, EIGHT = 4, SIXTEEN = 5,
-                THIRTY_SECOND = 6, SIXTY_FOUR = 7)
+class Accidentals(Enum):
+    """ Accidentals are in front of the note and modify the pitch. This
+        enum will show what accidental, if there is one, of the note
+        will be. """
+    NONE = 1
+    FLAT = 2
+    SHARP = 3
+    NATURAL = 4
+    DOUBLE_FLAT = 5
+    DOUBLE_SHARP = 6
 
-# Accidentals are in front of the note and modify the pitch. This
-# enum will show what accidental, if there is one, of the note will be.
-Accidentals = enum(NONE = 1, FLAT = 2, SHARP = 3, NATURAL = 4, DOUBLE_FLAT = 5,
-                   DOUBLE_SHARP = 6)
-
-# This enum will represent a clef used at the begining of a line to
-# denote the pitch type. Even though we will only use Treble and Bass,
-# all the possible clefs will be used in case this code is ever expanded
-# to match more than one piece of music.
-Clef = enum(TREBLE = 1,
-            BASS = 2,
-            FRENCH_VIOLIN = 3,
-            BARITONE_F = 4,
-            SUB_BASS = 5,
-            ALTO = 6,
-            TENOR = 7,
-            BARITONE_C = 8,
-            MEZZO_SOPRANO = 9,
-            SOPRANO = 10,
-            OCTAVE = 11,
-            NEUTRAL = 12,
-            TABLATURE = 13)
+class Clef(Enum):
+    """ This enum will represent a clef used at the begining of a line to
+        denote the pitch type. Even though we will only use Treble and Bass,
+        all the possible clefs will be used in case this code is ever expanded
+        to match more than one piece of music. """
+    TREBLE = 1
+    BASS = 2
+    FRENCH_VIOLIN = 3
+    BARITONE_F = 4
+    SUB_BASS = 5
+    ALTO = 6
+    TENOR = 7
+    BARITONE_C = 8
+    MEZZO_SOPRANO = 9
+    SOPRANO = 10
+    OCTAVE = 11
+    NEUTRAL = 12
+    TABLATURE = 13
 
 # Note acts as a C struct as it only contains information about the note
 # in the music sheet class. It will contain the type of note, pitch of
@@ -108,7 +119,7 @@ class MusicSheet(object):
         """ This will append the note to the end of the last measure. This will
             not create a new measure should it reach the end of time signature.
             """
-        pass
+
 
     def save_file(self, filename):
         """ This will save the Sheet Music to a file so that it can be loaded
