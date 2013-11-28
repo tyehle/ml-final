@@ -13,6 +13,7 @@ import matplotlib.pyplot as mpl
 import itertools
 
 import em
+import clustering
 
 
 def zdist(d):
@@ -130,6 +131,12 @@ def run_test():
     else: # plot the points with their original classes
         for j in range(0, m):
             outplot.plot(data[j][0, :], data[j][1, :], colors[j])
+
+
+    # compute the validity of this set of clusters
+    validity = clustering.dunn_index(input_data, out_labels, mu)
+    print(type(validity))
+    print("Validity: %.4f" % validity)
 
     # plot the one sigma contours
     for i in range(0, classes):
