@@ -11,6 +11,7 @@ classifications.
 from collections import deque
 from collections import namedtuple
 from flufl.enum import Enum
+from format_sm_files import open_sm_file, save_sm_file
 
 class NoteType(Enum):
     """ NoteType is an enum that gives the type of the note
@@ -70,7 +71,7 @@ class Clef(Enum):
 # accidental changes pitch and should be in the form of the
 # Accidentals enum and should only contain one of the fields of
 # the enum.
-Note = namedtuple('Note', ['note_type', 'pitch', 'metronome', 'accidental'])
+Note = namedtuple('Note', ['note_type', 'pitch', 'accidental'])
 
 # A measure is a series of notes confined by the time signature used for easy
 # grouping of notes. Measure is just a glorified deque to make reading it
@@ -84,54 +85,99 @@ class MusicSheet(object):
         """ This will initalize the Sheet Music by either loading one from
             the computer or creating a new one by scratch depending on if
             the user supplied a filename. """
+        self._title = ''
+        self._author = ''
+        self._clef = None
+        self._time = []
+        self._measures = deque()
+
         if type(filename) == str:
             self.load_file(filename)
-        else:
-            self.title = ''
-            self.author = ''
-            self.clef = None
-            self.time = None
-            self.measures = deque()
 
     def assign_title(self, title):
         """ This will assign the title of piece. """
-        self.title = title
+        self._title = title
 
     def assign_author(self, author):
         """ This will assign the author of the piece. """
-        self.author = author
+        self._author = author
 
     def assign_clef(self, clef):
         """ This will assign the clef of the piece. """
-        self.clef = clef
+        if clef not in Clef:
+            raise IllegalArgumentException("clef must be a valid type in"
+                                           " enum Clef")
+
+        self._clef = clef
 
     def assign_time(self, time):
-        """ This will assign the time signature of the piece. """
-        self.time = time
+        """ This will assign the time signature of the piece.
+            Two forms of the parameter will be expected for
+            time signature. The first is a list or a tuple. The
+            second is a string which both numbers must be seperated
+            by a '|' character."""
+
+        if time is str:
+            time = time.split('|')
+        if time is tuple:
+            time = list(tuple)
+
+        for i in range(len(time)):
+            time[i] = int(time[i])
+
+        self._time = time
 
     def create_measure(self):
         """ This will add a new measure to the end of the compisiton
             so that more notes can be added. This is somewhat like
             adding a bar line."""
-        self.measures.append(Measure(deque()))
+        self._measures.appendleft(Measure(deque()))
 
-    def add_note_to_measure(self, note_type, pitch, metronome, accidental):
+    def add_note_to_measure(self, note_type, pitch, accidental):
         """ This will append the note to the end of the last measure. This will
             not create a new measure should it reach the end of time signature.
             """
+        if note_type not in NoteType:
+            raise IllegalArgumentException("note_type must be a valid"
+                                           " type from enum NoteType.")
+        if type(pitch) is not str:
+            raise IllegalArgumentException("pitch must be a string.")
 
+        if accidental not in Accidentals:
+            raise IllegalArgumentException("accidental must be a valid type"
+                                           " from enum Accidental.")
+
+        self._measures[len(self.measures) - 1].notes.appendleft(Note(note_type, pitch, accidental))
 
     def save_file(self, filename):
         """ This will save the Sheet Music to a file so that it can be loaded
             and used again for classification. """
-        pass
+        save_sm_file(filename, self)
 
     def load_file(self, filename):
         """ This will load a sheet music file from the computer to be used for
             the classification data. """
-        pass
+        open_sm_file(filename, self)
+
+    def get_title(self):
+        """ This will return the title of the piece. """
+        return self._title
+    def get_author(self):
+        """ This will return the author of the piece. """
+        return self._author
+    def get_clef(self):
+        """ This will return the clef of the piece. """
+        return self._clef.name
+    def get_time:
+        """ This will return the time signature of the piece. """
+        return self._time
+    def get_measures:
+        """ This will return the measures of the piece. """
+        return self._measures
 
 class IllegalArgumentException(Exception):
+    """ This exception will be called anytime the user gives the music_sheet
+        class any argument that is not valid. """
     def __init__(self, value):
         self.value = value
 
