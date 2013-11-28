@@ -81,10 +81,10 @@ def __extract_measure(piece, sheet_music):
         line = piece.readline()
         line = __trim_string(line)
         if '<note>' in line:
-            note_type, pitch, accidental = __extract_note(piece, sheet_music)
+            note_type, pitch, accidental = __extract_note(piece)
             sheet_music.add_note_to_measure(note_type, str(pitch), accidental)
 
-def __extract_note(piece, sheet_music):
+def __extract_note(piece):
     """ This will extract a note by returning each of its attributes. """
     line = '<note>'
 
@@ -171,7 +171,8 @@ def save_sm_file(filename, music_sheet):
             piece.write('<note>\n')
             piece.write('<type>' + note.note_type.name + '</type>\n')
             piece.write('<pitch>' + note.pitch + '</pitch>\n')
-            piece.write('<accidental>' + note.accidental.name + '</accidental>\n')
+            piece.write('<accidental>' + note.accidental.name +
+                        '</accidental>\n')
             piece.write('</note>\n')
         piece.write('</measure>\n')
 
