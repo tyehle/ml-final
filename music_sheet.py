@@ -154,6 +154,10 @@ class MusicSheet(object):
     def save_file(self, filename):
         """ This will save the Sheet Music to a file so that it can be loaded
             and used again for classification. """
+
+        if type(filename) is None or filename == '':
+            filename = self._title + '.sm'
+
         save_sm_file(filename, self)
 
     def load_file(self, filename):
