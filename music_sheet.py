@@ -70,7 +70,7 @@ class Clef(Enum):
 # accidental changes pitch and should be in the form of the
 # Accidentals enum and should only contain one of the fields of
 # the enum.
-Note = namedtuple('Note', ['note_type', 'pitch', 'metronome', 'accidental'])
+Note = namedtuple('Note', ['note_type', 'pitch', 'accidental'])
 
 # A measure is a series of notes confined by the time signature used for easy
 # grouping of notes. Measure is just a glorified deque to make reading it
@@ -90,7 +90,7 @@ class MusicSheet(object):
             self.title = ''
             self.author = ''
             self.clef = None
-            self.time = None
+            self.time = []
             self.measures = deque()
 
     def assign_title(self, title):
@@ -103,23 +103,50 @@ class MusicSheet(object):
 
     def assign_clef(self, clef):
         """ This will assign the clef of the piece. """
+        if clef not in Clef:
+            raise IllegalArgumentException("clef must be a valid type in"
+                                           " enum Clef")
+
         self.clef = clef
 
     def assign_time(self, time):
-        """ This will assign the time signature of the piece. """
+        """ This will assign the time signature of the piece.
+            Two forms of the parameter will be expected for
+            time signature. The first is a list or a tuple. The
+            second is a string which both numbers must be seperated
+            by a '|' character."""
+
+        if time is str:
+            time = time.split('|')
+        if time is tuple:
+            time = list(tuple)
+
+        for i in range(len(time)):
+            time[i] = int(time[i])
+
         self.time = time
 
     def create_measure(self):
         """ This will add a new measure to the end of the compisiton
             so that more notes can be added. This is somewhat like
             adding a bar line."""
-        self.measures.append(Measure(deque()))
+        self.measures.appendleft(Measure(deque()))
 
-    def add_note_to_measure(self, note_type, pitch, metronome, accidental):
+    def add_note_to_measure(self, note_type, pitch, accidental):
         """ This will append the note to the end of the last measure. This will
             not create a new measure should it reach the end of time signature.
             """
+        if note_type not in NoteType:
+            raise IllegalArgumentException("note_type must be a valid"
+                                           " type from enum NoteType.")
+        if pitch is not str:
+            raise IllegalArgumentException("pitch must be a string.")
 
+        if accidental not in Accidentals:
+            raise IllegalArgumentException("accidental must be a valid type"
+                                           " from enum Accidental.")
+
+        self.measures[len(self.measures)].appendleft(Note(note_type, pitch, accidental))
 
     def save_file(self, filename):
         """ This will save the Sheet Music to a file so that it can be loaded
@@ -132,6 +159,8 @@ class MusicSheet(object):
         pass
 
 class IllegalArgumentException(Exception):
+    """ This exception will be called anytime the user gives the music_sheet
+        class any argument that is not valid. """
     def __init__(self, value):
         self.value = value
 
