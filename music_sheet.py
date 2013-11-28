@@ -85,10 +85,10 @@ class MusicSheet(object):
         """ This will initalize the Sheet Music by either loading one from
             the computer or creating a new one by scratch depending on if
             the user supplied a filename. """
-        self._title = ''
-        self._author = ''
-        self._clef = None
-        self._time = []
+        self._title = 'Unknown'
+        self._author = 'Unknown'
+        self._clef = Clef.TREBLE
+        self._time = [4, 4]
         self._measures = deque()
 
         if type(filename) == str:
@@ -107,17 +107,16 @@ class MusicSheet(object):
         if clef not in Clef:
             raise IllegalArgumentException("clef must be a valid type in"
                                            " enum Clef")
-
         self._clef = clef
 
-    def assign_time(self, time):
+    def assign_time_signature(self, time):
         """ This will assign the time signature of the piece.
             Two forms of the parameter will be expected for
             time signature. The first is a list or a tuple. The
             second is a string which both numbers must be seperated
             by a '|' character."""
 
-        if time is str:
+        if type(time) is str:
             time = time.split('|')
         if time is tuple:
             time = list(tuple)
@@ -147,7 +146,10 @@ class MusicSheet(object):
             raise IllegalArgumentException("accidental must be a valid type"
                                            " from enum Accidental.")
 
-        self._measures[len(self.measures) - 1].notes.appendleft(Note(note_type, pitch, accidental))
+        self._measures[len(self._measures) - 1].notes.appendleft(Note(note_type,
+                                                                      pitch,
+                                                                      accidental
+                                                                      ))
 
     def save_file(self, filename):
         """ This will save the Sheet Music to a file so that it can be loaded
@@ -162,16 +164,20 @@ class MusicSheet(object):
     def get_title(self):
         """ This will return the title of the piece. """
         return self._title
+
     def get_author(self):
         """ This will return the author of the piece. """
         return self._author
+
     def get_clef(self):
         """ This will return the clef of the piece. """
         return self._clef.name
-    def get_time:
+
+    def get_time(self):
         """ This will return the time signature of the piece. """
         return self._time
-    def get_measures:
+
+    def get_measures(self):
         """ This will return the measures of the piece. """
         return self._measures
 
