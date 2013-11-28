@@ -171,7 +171,7 @@ class MusicSheet(object):
 
     def get_clef(self):
         """ This will return the clef of the piece. """
-        return self._clef.name
+        return self._clef
 
     def get_time(self):
         """ This will return the time signature of the piece. """

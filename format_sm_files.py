@@ -9,6 +9,7 @@ and used as helper methods.
 """
 
 import music_sheet as ms
+import os
 
 def __trim_string(line):
     """ This is used to trim all special characters
@@ -141,4 +142,39 @@ def open_sm_file(filename, sheet_music):
 
 
 def save_sm_file(filename, music_sheet):
-    pass
+    """ This method will take the MusicSheet class and save its
+        contents into the .sm file. """
+    if '.sm' not in filename:
+        return
+
+    if os.path.exists(filename):
+        os.remove(filename)
+
+    piece = open(filename, 'w')
+
+    title = music_sheet.get_title()
+    author = music_sheet.get_author()
+    clef = music_sheet.get_clef()
+    time = music_sheet.get_time()
+    measures = music_sheet.get_measures()
+
+    piece.write('<title>' + title + '</title>\n')
+    piece.write('<author>' + author + '</author>\n')
+    piece.write('<clef>' + clef.name + '</clef>\n')
+    piece.write('<time>' + str(time[0]) + '|' + str(time[1]) + '</time>\n')
+
+    piece.write('<piece>\n')
+
+    for measure in measures:
+        piece.write('<measure>\n')
+        for note in measure.notes:
+            piece.write('<note>\n')
+            piece.write('<type>' + note.note_type.name + '</type>\n')
+            piece.write('<pitch>' + note.pitch + '</pitch>\n')
+            piece.write('<accidental>' + note.accidental.name + '</accidental>\n')
+            piece.write('</note>\n')
+        piece.write('</measure>\n')
+
+    piece.write('</piece>\n')
+
+    piece.close()
