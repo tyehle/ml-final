@@ -124,7 +124,7 @@ def run_em_test():
             incorrect = numpy.concatenate(incorrect, axis=1)
             outplot.plot(incorrect[0, :], incorrect[1, :], 'ro')
 
-        print("Accuracy: %f.2 (%i / %i)" % (best_acc, len(incorrect), len(labels)))
+        print("Accuracy: %.3f (%i / %i)" % (best_acc, len(correct.T), len(labels)))
 
     else: # plot the points with their new classes
         for j in range(0, m):
@@ -145,7 +145,35 @@ def run_em_test():
     mpl.show()
 
 
+def run_kmeans_test():
+    n = 1000
+    m = 3
+    colors = ['r+', 'g+', 'b+']
+    data = []
+    labels = []
+
+    fig = mpl.figure()
+    genplot = fig.add_subplot(1, 2, 1)
+    for i in range(0, m):
+        # generate a random positive definite matrix
+        a = rand(4, min_val=1)
+        cov = 0
+        b = rand(min_val=0, max_val=4)
+        sig = numpy.matrix([[a, cov], [cov, b]])
+        mu = numpy.matrix([[rand(20)], [rand(20)]])
+        data.append(multi_gauss(mu, sig, n/m))
+        labels.extend([ i for _ in range(0, n/m) ])
+
+        genplot.plot(data[i][0, :], data[i][1, :], colors[i])
+        plot_contour(mu, sig, genplot)
+
+    genplot.set_title('Input Data')
+    print("testing done")
+
+
 if __name__ == '__main__':
     print("Running em test")
     run_em_test()
 
+    print("Running k-means test")
+    run_kmeans_test()
