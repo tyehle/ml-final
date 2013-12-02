@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import numpy
 import sys
 
-def seperate_staffs(image, threshold):
+def seperate_staffs(image):
 
     #filter out any small noise and force any gray in the image to be
     #pure black or white depending if it is above or below the mean of the image
@@ -26,7 +26,7 @@ def seperate_staffs(image, threshold):
     #split the image based on whitespace
     in_image = False
     images = []
-#    threshold = image.shape[1] - 5;
+    threshold = image.shape[1] - 5;
     row_number = 0
     for row in whitespace_counts:
         if in_image:
@@ -49,7 +49,6 @@ def seperate_notes(image):
     #filter out any small noise and force any gray in the image to be
     #pure black or white depending if it is above or below the mean of the image
     image = (image > image.mean()).astype(numpy.float)
-    threshold = 19.9
     #count up the whitespace in each row
     whitespace_counts = []
     for i in image:
@@ -57,6 +56,9 @@ def seperate_notes(image):
         for j in i:
             whitespace_sum = whitespace_sum + j
         whitespace_counts.append(whitespace_sum[0])
+
+
+    threshold = numpy.median(whitespace_counts) - 5
 
     plt.plot(whitespace_counts)
     plt.plot([threshold for x in range(1,image.shape[0])])
@@ -86,7 +88,7 @@ if __name__ == "__main__":
     plt.imshow(image)
     plt.show()
 
-    staffs = seperate_staffs(image, image.shape[1] - 5)
+    staffs = seperate_staffs(image)
     for staff in staffs:
         transposed_staff = ndimage.rotate(staff, -90)
         notes = seperate_notes(transposed_staff)
