@@ -10,6 +10,7 @@ def seperate_staffs(image):
     #filter out any small noise and force any gray in the image to be
     #pure black or white depending if it is above or below the mean of the image
     image = (image > image.mean()).astype(numpy.float)
+    threshold = image.shape[1] - 5
 
     #count up the whitespace in each row
     whitespace_counts = []
@@ -20,13 +21,12 @@ def seperate_staffs(image):
         whitespace_counts.append(whitespace_sum[0])
 
     plt.plot(whitespace_counts)
-    plt.plot([threshold for x in range(1,image.shape[0])])
+    plt.plot([threshold for x in range(1, image.shape[0])])
     plt.show()
 
     #split the image based on whitespace
     in_image = False
     images = []
-    threshold = image.shape[1] - 5;
     row_number = 0
     for row in whitespace_counts:
         if in_image:
@@ -41,7 +41,7 @@ def seperate_staffs(image):
 
     seperated_images = [image[x[0]:x[1], :] for x in images]
     staff_threshold = sum([x.mean() for x in seperated_images])/len(seperated_images)
-    filtered_images = filter(lambda x: x.mean()<staff_threshold, seperated_images)
+    filtered_images = [x for x in seperated_images if x.mean() < staff_threshold]
     return filtered_images
 
 
@@ -61,7 +61,7 @@ def seperate_notes(image):
     threshold = numpy.median(whitespace_counts) - 5
 
     plt.plot(whitespace_counts)
-    plt.plot([threshold for x in range(1,image.shape[0])])
+    plt.plot([threshold for x in range(1, image.shape[0])])
     plt.show()
 
     #split the image based on whitespace
@@ -80,7 +80,6 @@ def seperate_notes(image):
         row_number = row_number + 1
 
     seperated_images = [image[x[0]:x[1], :] for x in images]
-    staff_threshold = sum([x.mean() for x in seperated_images])/len(seperated_images)
     return seperated_images
 
 if __name__ == "__main__":
