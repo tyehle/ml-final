@@ -282,3 +282,55 @@ def _gauss(x, mu, sig):
     return 1.0/math.sqrt((2*math.pi)**a * numpy.linalg.det(sig)) * \
         math.exp(-0.5 * (numpy.asmatrix(x-mu) * numpy.linalg.inv(sig) * \
                          numpy.asmatrix(x-mu).T)[0,0])
+
+
+def gda(data, labels, m):
+    """ Expects data as a numpy array with a single data point in a column.
+        Expects labels to be in [0, m) as a list.
+    """
+    a = data.shape[0]
+    n = data.shape[1]
+
+    # compute phi
+    phi = numpy.array([ 1.0/n * _occurrences(j, labels) for j in range(m) ])
+
+    # compute mu
+    mu = numpy.zeros((a, m))
+    for i in range(n):
+        j = labels(i)
+        mu[:, j] = mu[:, j] + data[:, i]
+    for j in range(m):
+        mu[:, j] = 1.0/_occurrences(j, labels) * mu[:, j]
+
+    # compute sigma
+    sig = numpy.array((a, a, m))
+    for i in range(n):
+        j = labels(i)
+        diff = numpy.asmatrix(data[:, i] - mu[:, j])
+        sig[:, :, j] = sig[:, :, labels(i)] + diff.T * diff
+    for j in range(m):
+        sig[:, :, j] = 1.0/_occurrences(j, labels) * sig[:, :, j]
+
+    # return a function that classifies new data
+    def classify(x):
+        """ Classifies the data point x using the learned parameters. """
+        label = 0
+        prob = _gauss(x, mu[:, 0], sig[:, :, 0]) * phi[0]
+        for j in range(1, m):
+            new_prob = _gauss(x, mu[:, j], sig[:, :, j]) * phi[j]
+            if new_prob > prob:
+                label = j
+                prob = new_prob
+        return label
+        
+    return classify
+
+
+def _occurrences(items, item):
+    """ Returns the number of occurrences of item in the list of items. """
+    n = 0
+    for e in items:
+        if e is item:
+            n = n + 1
+
+    return n
