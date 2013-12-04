@@ -1,6 +1,8 @@
-Eric + Chase : image processing - extract notes with HOG
-Tobin : Note clustering
-Kyle : Output data structure read and write to file + test
+Eric + Chase : create labeled data
+Tobin : Classification with GDA (labeled data -> classification function)
+Kyle : generate sheet music images
 
-clustering to find pitch
-classification to find note/rest type
+TODO:
+presentation
+feature extraction
+run.py script
