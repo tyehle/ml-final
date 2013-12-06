@@ -162,7 +162,6 @@ def save_sm_file(filename, music_sheet):
     piece.write('<author>' + author + '</author>\n')
     piece.write('<clef>' + clef.name + '</clef>\n')
     piece.write('<time>' + str(time[0]) + '|' + str(time[1]) + '</time>\n')
-
     piece.write('<piece>\n')
 
     for measure in measures:
