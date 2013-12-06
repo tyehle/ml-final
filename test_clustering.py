@@ -91,9 +91,12 @@ def run_em_test():
 
     genplot.set_title('Input Data')
 
+    # redefine n to be the number of data points we have
+    n = n/m*m
+
     classes = m
     input_data = numpy.concatenate(data, axis=1)
-    (w, phi, mu, sig) = clustering.em(input_data, classes, 40, 0.01)
+    (w, _, mu, sig) = clustering.em(input_data, classes, 40, 0.01)
 
     out_labels = [ int(numpy.argmax(w[:, i])) \
                    for i in range(input_data.shape[1]) ]
@@ -113,18 +116,18 @@ def run_em_test():
                 best_acc = acc
                 best_perm = perms[i]
 
-        correct = [ input_data[:, i] for i in range(len(labels)) \
+        correct = [ input_data[:, i] for i in range(n) \
                     if labels[i] == best_perm[out_labels[i]] ]
         correct = numpy.concatenate(correct, axis=1)
         outplot.plot(correct[0, :], correct[1, :], 'b+')
 
-        incorrect = [ input_data[:, i] for i in range(len(labels)) \
+        incorrect = [ input_data[:, i] for i in range(n) \
                       if labels[i] != best_perm[out_labels[i]] ]
         if incorrect:
             incorrect = numpy.concatenate(incorrect, axis=1)
             outplot.plot(incorrect[0, :], incorrect[1, :], 'ro')
 
-        print("Accuracy: %.3f (%i / %i)" % (best_acc, len(correct.T), len(labels)))
+        print("Accuracy: %.3f (%i / %i)" % (best_acc, len(correct.T), n))
 
     else: # plot the points with their new classes
         for j in range(0, m):
@@ -146,6 +149,7 @@ def run_em_test():
 
 
 def run_kmeans_test():
+    """ Runs a comprehensive test on the kmeans algorithm. """
     n = 1000
     m = 3
     colors = ['r+', 'g+', 'b+']
@@ -169,6 +173,80 @@ def run_kmeans_test():
 
     genplot.set_title('Input Data')
     print("testing done")
+
+
+def run_gda_test():
+    """ Runs a comprhensive test on the GDA algoithm. """
+    n = 1000
+    m = 3
+    colors = ["r+", "g+", "b+"]
+    data = []
+    labels = []
+
+    fig = mpl.figure()
+    genplot = fig.add_subplot(1, 2, 1)
+    for i in range(m):
+        # generate a random + def matrix
+        a = rand(4, min_val=1)
+        cov = rand(min_val=-1, max_val=1)
+        b = rand(min_val=cov*cov/a, max_val=4)
+        sig = numpy.matrix([[a, cov], [cov, b]])
+        mu = numpy.matrix([[rand(20)], [rand(20)]])
+        data.append(multi_gauss(mu, sig, n/m))
+        labels.extend([ i for _ in range(0, n/m) ])
+
+        genplot.plot(data[i][0, :], data[i][1, :], colors[i])
+        plot_contour(mu, sig, genplot)
+
+    genplot.set_title('Input Data')
+
+    data = numpy.concatenate(data, axis=1)
+
+    # redefine n to be the number of data points we now have
+    n = n/m*m
+    # shuffle data and labels
+    for i in range(n):
+        tmp = numpy.copy(data[:, i])
+        tmp_l = labels[i]
+        index = int(random.random() * n)
+        data[:, i] = data[:, index]
+        labels[i] = labels[index]
+        data[:, index] = tmp
+        labels[index] = tmp_l
+
+    (classer, phi, mu, sig) = clustering.gda(data, labels, m)
+
+    out_labels = [ classer(numpy.asarray(data)[:, i]) for i in range(n) ]
+
+    outplot = fig.add_subplot(1, 2, 2)
+
+    # plot the data
+    # colorize misclassed points and print accuracy
+
+    correct = [ data[:, i] for i in range(n) if labels[i] == out_labels[i] ]
+    correct = numpy.concatenate(correct, axis=1)
+    outplot.plot(correct[0, :], correct[1, :], 'b+')
+
+    incorrect = [ data[:, i] for i in range(n) if labels[i] != out_labels[i] ]
+    if incorrect:
+        incorrect = numpy.concatenate(incorrect, axis=1)
+        outplot.plot(incorrect[0, :], incorrect[1, :], 'ro')
+
+    acc = accuracy(range(m), labels, out_labels)
+    print("Accuracy: %.3f (%i / %i)" % (acc, len(correct.T), n))
+
+    # compute the validity of this set of clusters
+    validity = clustering.dunn_index(data, out_labels, mu)
+    print("Validity: %.4f" % validity)
+
+    # plot the one sigma contours
+    for i in range(m):
+        outplot.plot(mu[0, i], mu[1, i], 'ko')
+        plot_contour(numpy.asmatrix(mu[:, i]).T, sig[:, :, i], outplot)
+
+    outplot.set_title('Fitted Parameters')
+
+    mpl.show()
 
 
 if __name__ == '__main__':
