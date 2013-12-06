@@ -279,15 +279,16 @@ def _gauss(x, mu, sig):
         distribution defined by mu and sig.
     """
     a = x.shape[0]
+    diff = numpy.asmatrix(x - mu)
     return 1.0/math.sqrt((2*math.pi)**a * numpy.linalg.det(sig)) * \
-        math.exp(-0.5 * (numpy.asmatrix(x-mu) * numpy.linalg.inv(sig) * \
-                         numpy.asmatrix(x-mu).T)[0,0])
+        math.exp(-0.5 * (diff * numpy.linalg.inv(sig) * diff.T)[0,0])
 
 
 def gda(data, labels, m):
     """ Expects data as a numpy array with a single data point in a column.
         Expects labels to be in [0, m) as a list.
     """
+    data = numpy.asarray(data)
     a = data.shape[0]
     n = data.shape[1]
 
@@ -297,17 +298,17 @@ def gda(data, labels, m):
     # compute mu
     mu = numpy.zeros((a, m))
     for i in range(n):
-        j = labels(i)
+        j = labels[i]
         mu[:, j] = mu[:, j] + data[:, i]
     for j in range(m):
         mu[:, j] = 1.0/_occurrences(j, labels) * mu[:, j]
 
     # compute sigma
-    sig = numpy.array((a, a, m))
+    sig = numpy.zeros((a, a, m))
     for i in range(n):
-        j = labels(i)
+        j = labels[i]
         diff = numpy.asmatrix(data[:, i] - mu[:, j])
-        sig[:, :, j] = sig[:, :, labels(i)] + diff.T * diff
+        sig[:, :, j] = sig[:, :, j] + diff.T * diff
     for j in range(m):
         sig[:, :, j] = 1.0/_occurrences(j, labels) * sig[:, :, j]
 
@@ -323,10 +324,10 @@ def gda(data, labels, m):
                 prob = new_prob
         return label
         
-    return classify
+    return classify, phi, mu, sig
 
 
-def _occurrences(items, item):
+def _occurrences(item, items):
     """ Returns the number of occurrences of item in the list of items. """
     n = 0
     for e in items:
