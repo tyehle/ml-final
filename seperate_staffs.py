@@ -24,6 +24,9 @@ def seperate_staffs(image):
 
     plt.plot(whitespace_counts)
     plt.plot([threshold for x in range(1, image.shape[0])])
+    plt.title("Horizontal Sumations for Sample Sheet Music")
+    plt.xlabel("Row number")
+    plt.ylabel("Horizontal Summation of Whitespace")
     plt.show()
 
     #split the image based on whitespace
