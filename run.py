@@ -3,9 +3,20 @@
 import clustering
 import json
 import numpy, scipy
+from scipy import ndimage
 from scipy import misc
 import random
 
+def mark_of_the_beast(image):
+    features = numpy.array()
+
+    for row in image.astype(numpy.float):
+        tmpSum = 0
+        for pixel in row:
+            tmpSum = tmpSum + pixel
+        numpy.append(features, tmpSum)
+
+    return features
 
 def get_classifier(file_location, get_features):
     """ Gets a classifier that can be used to find the type of a note. """
@@ -50,7 +61,6 @@ def get_classifier(file_location, get_features):
     # get the classifier
     (classer, phi, mu, sig) = clustering.gda(features, labels, len(label_map))
     return classer
-
 
 if __name__ == "__main__":
     get_classifier("learn/learn.json", lambda img: random.random())
