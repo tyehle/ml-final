@@ -60,6 +60,6 @@ def learn(filename):
 
 
 if __name__ == "__main__":
+    assert len(sys.argv) > 0, "Usage: <filename> - path to image file to learn"
     filename = sys.argv[1]
-    
     learn(filename)
