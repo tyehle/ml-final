@@ -15,11 +15,12 @@ def mark_of_the_beast(image):
 
     image = ndimage.rotate(image, 90)
 
+    width = image.shape[0]
     for row in (image < image.mean()).astype(numpy.float):
         tmpSum = 0
         for pixel in row:
             tmpSum = tmpSum + pixel
-        features = numpy.append(features, tmpSum)
+        features = numpy.append(features, tmpSum/width)
 
     return features
 
