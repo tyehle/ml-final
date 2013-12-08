@@ -28,10 +28,12 @@ def mark_of_the_beast(image):
 def center(image):
     """ Finds the centeroid (geometric mean) """
     row_brightness = mark_of_the_beast(image)
-    loc = 0
+    loc = 0.0
+    total_weight = 0.0
     for i in range(len(row_brightness)):
         loc = loc + i * row_brightness[i]
-    return numpy.array([loc / len(row_brightness)**2])
+        total_weight = total_weight + row_brightness[i]
+    return numpy.array([loc / total_weight / len(row_brightness)])
 
 
 def get_type_classifier_subset(train_ratio, file_location, get_features):
