@@ -8,13 +8,15 @@ from scipy import misc
 import random
 
 def mark_of_the_beast(image):
-    features = numpy.array()
+    features = numpy.array(0)
 
-    for row in image.astype(numpy.float):
+    image = ndimage.rotate(image, 90)
+
+    for row in (image < image.mean()).astype(numpy.float):
         tmpSum = 0
         for pixel in row:
             tmpSum = tmpSum + pixel
-        numpy.append(features, tmpSum)
+        features = numpy.append(features, tmpSum)
 
     return features
 
